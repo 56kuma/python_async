@@ -1,41 +1,34 @@
 # 同期無限Loop, 非同期Post
-#  ▶ これではNG
 
 import asyncio
-from async_process import async_post, async_sleep
+from async_process import ClientSessionManager
 
-async def main():
+def main():
     loop_count = 0
     url = 'http://localhost:8080/'
 
-    # 💬イベントループの取得
+    # イベントループの取得 💬mainの内部に入れる ▶ スコープを局所的にしたいため。
     loop = asyncio.get_event_loop()
+
+    manager = ClientSessionManager()
+
     try:
         while True:
             loop_count += 1
-            # 非同期かつバックグラウンド実行
-            asyncio.ensure_future(async_post(url, loop_count))
+            # 非同期かつバックグラウンド実行（引数はコルーチンorFutureの必要あり）
+            asyncio.ensure_future(manager.async_post(url, loop_count))
             # 非同期に1秒間スリープ(このコードをベースにキックする。)
-            # loop.run_until_complete(async_sleep(0.1))
-            await asyncio.sleep(0.1)
+            loop.run_until_complete(asyncio.sleep(0.1))
 
     except KeyboardInterrupt:  # CTRL+C で終了
         pass
     finally:
+        loop.run_until_complete(manager.close())
         loop.close()
 
-# if __name__ == "__main__":
-#     main()
-
-
-# イベントループを取得
-loop = asyncio.get_event_loop()
-
-# イベントループで main コルーチンを実行
-loop.create_task(main())
-
-# イベントループを永続的に実行
-loop.run_forever()
+# イベントループの取得と実行
+if __name__ == "__main__":
+    main()
 
 
 '''

@@ -1,25 +1,25 @@
 import aiohttp
-import asyncio
-
-async def async_post(url, loop_count):
-
-    # await asyncio.sleep(0.1)
-
-    session = aiohttp.ClientSession()
-
-    data = {'loop_count': str(loop_count)}
-    # 💬post前チェック
-    print("🟠Sending request for loop_count: {}".format(loop_count))
-    response = await session.post(url, data=data)
-    text = await response.text()
-    # 💬post後チェック
-    print("🟨Received response for loop_count {}".format(text))
-
-    # session を閉じる
-    await session.close()
+# import asyncio
 
 
-    return text
+class ClientSessionManager:
+    # 💬sessionは外に出す。
+    def __init__(self):
+        self.session = aiohttp.ClientSession()
 
-async def async_sleep(seconds):
-     await asyncio.sleep(seconds)
+    # 非同期Post
+    async def async_post(self, url, loop_count):
+
+        data = {'loop_count': str(loop_count)}
+        # 💬post前チェック
+        print("🟠Sending request for loop_count: {}".format(loop_count))
+        response = await self.session.post(url, data=data)
+        text = await response.text()
+        # 💬post後チェック
+        print("🟨Received response for loop_count {}".format(text))
+
+        return text
+
+    async def close(self):
+        if self.session:
+            await self.session.close()
