@@ -1,0 +1,22 @@
+# Usage:
+# $ docker-compose -f docker-compose.develop.yml build --build-arg USER_UID="`id -u`" cb_develop_person_state_manager; echo $?  # イメージ作成
+# $ docker-compose -f docker-compose.develop.yml up -d; echo $?  # コンテナ起動
+# $ docker-compose -f docker-compose.develop.yml stop; echo $?  # コンテナ停止
+#
+
+version: '3.4'
+
+services:
+  python_async:
+    image: python_async
+    container_name: python_async
+    hostname: python_async
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    volumes:
+      - .:/code
+    environment:
+      - TZ=UTC
+    tty: true
+    stdin_open: true
